@@ -1,8 +1,17 @@
+#include "pagerank.h"
 #include <iostream>
 
-using namespace std;
+//int main() {
+    int no_of_lines, power_iterations;
+    std::string from, to;
+    std::cin >> no_of_lines >> power_iterations;
+    AdjacencyList graph;
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
+    for(int i = 0; i < no_of_lines; i++) {
+        std::cin >> from >> to;
+        graph.addEdge(from, to);
+    }
+
+    graph.PageRank(power_iterations);
     return 0;
 }
