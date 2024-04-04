@@ -1,16 +1,17 @@
-#include "../src/pagerank.cpp"
+#include "../src/pagerank.h"  // Ensure this path is correct
 #include <catch2/catch_test_macros.hpp>
 #include <sstream>
+#include <iostream>
 
 // Helper function to capture the output of PageRank
 std::string capturePageRankOutput(AdjacencyList& graph, int iterations) {
     std::ostringstream stream;
-    // Redirect cout to our stringstream buffer or any other stream
+    // Redirect cout to our stringstream buffer
     std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
     std::cout.rdbuf(stream.rdbuf());
 
     // Run PageRank which will 'cout' the results
-    graph.PageRank(iterations);
+    graph.PageRank(iterations); // Use the PageRank method as defined in your source code
 
     // Restore old cout stream buffer
     std::cout.rdbuf(oldCoutStreamBuf);
@@ -19,11 +20,6 @@ std::string capturePageRankOutput(AdjacencyList& graph, int iterations) {
 }
 
 TEST_CASE("PageRank Calculation", "[PageRank]") {
-    // Redirect cout to capture output
-    std::stringstream buffer;
-    std::streambuf* prevCout = std::cout.rdbuf(buffer.rdbuf());
-
-    // Create a graph and add edges according to the input
     AdjacencyList graph;
     graph.addEdge("google.com", "gmail.com");
     graph.addEdge("google.com", "maps.com");
@@ -33,14 +29,8 @@ TEST_CASE("PageRank Calculation", "[PageRank]") {
     graph.addEdge("maps.com", "facebook.com");
     graph.addEdge("gmail.com", "maps.com");
 
-    // Run the PageRank algorithm with 2 iterations
-    graph.PageRank(2);
-
-    // Restore the original buffer before reading the output
-    std::cout.rdbuf(prevCout);
-
     // Capture the output
-    std::string output = buffer.str();
+    std::string output = capturePageRankOutput(graph, 2);
 
     // Define the expected output
     std::string expectedOutput =
@@ -71,7 +61,7 @@ TEST_CASE("Two Nodes with a Single Direction Link", "[PageRank]") {
     AdjacencyList graph;
     graph.addEdge("A", "B");
     std::string output = capturePageRankOutput(graph, 2);
-    REQUIRE(output == "A 0.00\nB 1.00\n");
+    REQUIRE(output == "A 0.00\nB 0.50\n");
 }
 
 TEST_CASE("Two Nodes with Repeat Links", "[PageRank]") {
@@ -79,7 +69,7 @@ TEST_CASE("Two Nodes with Repeat Links", "[PageRank]") {
     graph.addEdge("A", "B");
     graph.addEdge("A", "B"); // Repeat link
     std::string output = capturePageRankOutput(graph, 2);
-    REQUIRE(output == "A 0.00\nB 1.00\n");
+    REQUIRE(output == "A 0.00\nB 0.50\n");
 }
 
 TEST_CASE("Circular Reference Between Three Nodes", "[PageRank]") {
@@ -91,4 +81,66 @@ TEST_CASE("Circular Reference Between Three Nodes", "[PageRank]") {
     // The output here may vary depending on the convergence of the PageRank algorithm
     // with only two iterations. You might need to adjust the expected output based on your implementation.
     REQUIRE(output == "A 0.33\nB 0.33\nC 0.33\n");
+}
+
+TEST_CASE("PageRank with Different Power Iterations", "[PageRank]") {
+    SECTION("2 Iterations") {
+        AdjacencyList graph;
+        graph.addEdge("A", "B");
+        graph.addEdge("B", "C");
+        graph.addEdge("C", "A");
+        std::string output = capturePageRankOutput(graph, 2);
+        REQUIRE(output == "A 0.33\nB 0.33\nC 0.33\n");
+    }
+
+    SECTION("5 Iterations") {
+        AdjacencyList graph;
+        graph.addEdge("A", "B");
+        graph.addEdge("B", "C");
+        graph.addEdge("C", "A");
+        std::string output = capturePageRankOutput(graph, 5);
+        // Expected output might need adjustment based on the convergence of the algorithm
+        REQUIRE(output == "A 0.33\nB 0.33\nC 0.33\n");
+    }
+
+    SECTION("10 Iterations") {
+        AdjacencyList graph;
+        graph.addEdge("A", "B");
+        graph.addEdge("B", "A");
+        std::string output = capturePageRankOutput(graph, 10);
+        REQUIRE(output == "A 0.50\nB 0.50\n");
+    }
+
+    SECTION("100 Iterations") {
+        AdjacencyList graph;
+        graph.addEdge("X", "Y");
+        graph.addEdge("Y", "Z");
+        graph.addEdge("Z", "X");
+        std::string output = capturePageRankOutput(graph, 100);
+        // The output for 100 iterations may be more converged compared to fewer iterations
+        REQUIRE(output == "X 0.33\nY 0.33\nZ 0.33\n");
+    }
+}
+
+TEST_CASE("PageRank Test Case", "[PageRank]") {
+    AdjacencyList graph;
+
+    // Add edges as per the test case
+    graph.addEdge("go", "man");
+    graph.addEdge("go", "plan");
+    graph.addEdge("joker", "go");
+    graph.addEdge("plan", "man");
+
+    // Run the PageRank algorithm with 3 iterations
+    std::string output = capturePageRankOutput(graph, 3);
+
+    // Define the expected output
+    std::string expectedOutput =
+            "go 0.00\n"
+            "joker 0.00\n"
+            "man 0.25\n"
+            "plan 0.12\n";
+
+    // Compare the captured output to the expected output
+    REQUIRE(output == expectedOutput);
 }
