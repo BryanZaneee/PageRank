@@ -25,6 +25,6 @@ With the dependencies ready and the repository cloned on your local machine, you
 
 ## Usage
 
-After building the project, execute the `PageRank` program found in the build directory. The application calculates the PageRank of various nodes and outputs the scores, which can be directed to a file for further analysis or visualization. For a detailed guide on how to use the application and interpret the results, refer to the project documentation.
+After building the project, execute the `PageRank` program found in the build directory. The application calculates the PageRank of various nodes and outputs the scores, which can be directed to a file for further analysis or visualization.
 
 Thank you for exploring this implementation of the PageRank algorithm, and enjoy analyzing the importance of nodes in your network!
